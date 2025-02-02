@@ -54,6 +54,16 @@
             color: white;
         }
 
+        .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .actions form {
+            margin: 0;
+        }
+
         .actions button {
             margin-right: 10px;
         }
@@ -248,7 +258,9 @@
         <div class="actions">
             <button class="like-btn">❤️ Лайк</button>
             <button class="edit-btn">✏️ Редактировать</button>
-            <button class="delete-btn">🗑️ Удалить</button>
+            <form th:action="@{/posts/{id}?_method=delete(id=${post.id})}" method="post">
+                <button class="delete-btn">🗑️ Удалить</button>
+            </form>
         </div>
     </div>
 

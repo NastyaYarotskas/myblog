@@ -65,4 +65,12 @@ class PostControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/posts"));
     }
+
+    @Test
+    void deleteById_postIsPresent_shouldRemovePostFromDatabaseAndRedirect() throws Exception {
+        mockMvc.perform(post("/posts/1")
+                        .param("_method", "delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts"));
+    }
 }
