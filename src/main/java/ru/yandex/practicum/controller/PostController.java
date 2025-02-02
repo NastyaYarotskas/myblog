@@ -2,10 +2,7 @@ package ru.yandex.practicum.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
 
@@ -32,6 +29,12 @@ public class PostController {
     @PostMapping
     public String save(@ModelAttribute Post post) {
         service.save(post);
+        return "redirect:/posts";
+    }
+
+    @PostMapping(value = "/{id}", params = "_method=delete")
+    public String delete(@PathVariable(name = "id") Long id) {
+        service.deleteById(id);
         return "redirect:/posts";
     }
 }
