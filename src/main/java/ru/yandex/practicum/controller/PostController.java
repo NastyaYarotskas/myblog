@@ -3,6 +3,8 @@ package ru.yandex.practicum.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
@@ -20,10 +22,16 @@ public class PostController {
     }
 
     @GetMapping
-    public String posts(Model model) {
+    public String getAll(Model model) {
         List<Post> posts = service.findAll();
         model.addAttribute("posts", posts);
         model.addAttribute("count", posts.size());
         return "posts_page";
+    }
+
+    @PostMapping
+    public String save(@ModelAttribute Post post) {
+        service.save(post);
+        return "redirect:/posts";
     }
 }

@@ -17,6 +17,7 @@ import ru.yandex.practicum.WebConfiguration;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -44,16 +45,24 @@ class PostControllerTest {
     }
 
     @Test
-    void getPosts_postsExists_shouldReturnHtmlWithPosts() throws Exception {
+    void getAll_postsExists_shouldReturnHtmlWithPosts() throws Exception {
         mockMvc.perform(get("/posts"))
 //                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(view().name("posts_page"))
                 .andExpect(model().attributeExists("posts"))
-                .andExpect(xpath("//table/tbody/tr").nodeCount(3))
-                .andExpect(xpath("//table/tbody/tr[1]/td[2]").string("FIRST POST"))
-                .andExpect(xpath("//table/tbody/tr[2]/td[2]").string("SECOND POST"))
-                .andExpect(xpath("//table/tbody/tr[3]/td[2]").string("THIRD POST"));
+                .andExpect(xpath("//body/div/div[2]/h2").string("Путешествие в горы: впечатления и советы"))
+                .andExpect(xpath("//body/div/div[3]/h2").string("Как выбрать ноутбук для работы и учёбы"));
+    }
+
+    @Test
+    void save_paramsArePresent_shouldAddPostToDatabaseAndRedirect() throws Exception {
+        mockMvc.perform(post("/posts")
+                        .param("title", "Новый пост")
+                        .param("image", "img")
+                        .param("content", "Содержание поста"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts"));
     }
 }

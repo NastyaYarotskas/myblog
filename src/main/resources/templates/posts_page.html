@@ -3,82 +3,274 @@
 <head>
     <meta charset="UTF-8"></meta>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-
-    <!-- Название страницы-->
-    <title>Посты</title>
-
-    <!-- Стили страницы -->
+    <title>Лента постов</title>
     <style>
+        /* Основные стили */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
         }
+
         h1 {
             text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .actions {
-            text-align: center;
-        }
-        .form-container {
+            color: #444;
             margin-top: 20px;
+            font-size: 2.5em;
         }
-        label {
-            display: block;
-            margin-top: 10px;
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        input[type="text"], input[type="number"], input[type="checkbox"] {
-            width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-        }
+
+        /* Стили для кнопок */
         button {
             padding: 10px 20px;
-            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
         }
-        .btn-add {
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #add-post-btn {
+            background-color: #28a745;
+            color: white;
             margin-bottom: 20px;
+        }
+
+        #submit-post, #submit-comment {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .actions button {
+            margin-right: 10px;
+        }
+
+        .actions button#like-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .actions button#edit-post {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .actions button#delete-post {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Стили для карточки поста */
+        .post {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .post img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .post h2 {
+            margin-top: 0;
+            font-size: 1.8em;
+            color: #007BFF;
+        }
+
+        .post p {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .post .meta {
+            font-size: 0.9em;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .post .meta span {
+            margin-right: 15px;
+        }
+
+        .post .tags {
+            margin-top: 10px;
+        }
+
+        .post .tags span {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            color: #555;
+        }
+
+        /* Стили для кнопок */
+        .actions {
+            margin-top: 15px;
+        }
+
+        .actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .actions button.like-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .actions button.edit-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .actions button.delete-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .actions button:hover {
+            opacity: 0.9;
+        }
+
+        /* Стили для формы добавления поста */
+        .add-post-form {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .add-post-form input,
+        .add-post-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .add-post-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Стили для пагинации */
+        .pagination {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .pagination a {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination a.active,
+        .pagination a:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-<h1>Посты</h1>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Имя</th>
-        <th>Фото</th>
-        <th>Описание</th>
-        <th>Лайки</th>
-        <th>Общее кол-во</th>
-    </tr>
-    </thead>
-    <tbody>
+<h1>Мой Блог</h1>
+<div class="container">
 
-    <!-- Цикл по пользователям из атрибута users-->
-    <tr th:each="post : ${posts}">
-        <td th:text="${post.id}"/> <!-- Вставляем идентификаторы и остальные атрибуты-->
-        <td th:text="${post.name}"/>
-        <td th:text="${post.image}"/>
-        <td th:text="${post.description}"/>
-        <td th:text="${post.likeCount}"/>
-        <td th:text="${count}"/>
-    </tr>
-    </tbody>
-</table>
+    <button id="add-post-btn">Добавить пост</button>
+
+    <div class="add-post-form" id="add-post-form">
+        <form th:action="@{/posts}" th:object="${post}" method="POST">
+            <label for="title"></label>
+            <input type="text" id="title" name="title" placeholder="Название поста" required="required"/>
+
+            <label for="image"></label>
+            <input type="text" id="image" name="image" placeholder="Ссылка на картинку поста" required="required"/>
+
+            <label for="content"></label>
+            <textarea id="content" name="content" placeholder="Текст поста" required="required"></textarea>
+
+            <button type="submit">Опубликовать</button>
+        </form>
+    </div>
+
+    <div class="post" th:each="post : ${posts}">
+        <img th:src="${post.image}"></img>
+        <h2 th:text="${post.title}"/>
+        <p th:text="${post.content}"/>
+        <div class="meta">
+            <span th:text="${'Лайки ' + post.likeCount}"></span>
+            <span>Комментарии: 12</span>
+        </div>
+        <div class="tags">
+            <span>Путешествия</span>
+            <span>Горы</span>
+            <span>Советы</span>
+        </div>
+        <div class="actions">
+            <button class="like-btn">❤️ Лайк</button>
+            <button class="edit-btn">✏️ Редактировать</button>
+            <button class="delete-btn">🗑️ Удалить</button>
+        </div>
+    </div>
+
+    <div class="pagination">
+        <a href="#" class="active">1</a>
+        <a href="#">2</a>
+        <a href="#">3</a>
+        <a href="#">4</a>
+        <a href="#">5</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('add-post-btn').addEventListener('click', function() {
+        document.getElementById('add-post-form').style.display = 'block';
+    });
+
+<!--    document.getElementById('submit-post').addEventListener('click', function() {-->
+<!--        alert('Пост добавлен!');-->
+<!--        document.getElementById('add-post-form').style.display = 'none';-->
+<!--    });-->
+</script>
+
 </body>
 </html>
