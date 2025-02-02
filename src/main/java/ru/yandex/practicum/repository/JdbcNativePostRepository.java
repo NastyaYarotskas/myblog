@@ -18,13 +18,19 @@ public class JdbcNativePostRepository implements PostRepository {
     @Override
     public List<Post> findAll() {
         return jdbcTemplate.query(
-                "select id, name, image, description, like_count from posts",
+                "select id, title, image, content, like_count from posts order by id desc",
                 (rs, rowNum) -> new Post(
                         rs.getLong("id"),
-                        rs.getString("name"),
+                        rs.getString("title"),
                         rs.getString("image"),
-                        rs.getString("description"),
+                        rs.getString("content"),
                         rs.getInt("like_count")
                 ));
+    }
+
+    @Override
+    public void save(Post post) {
+        jdbcTemplate.update("insert into posts(title, content, image) values(?, ?, ?)",
+                post.getTitle(), post.getContent(), post.getImage());
     }
 }
