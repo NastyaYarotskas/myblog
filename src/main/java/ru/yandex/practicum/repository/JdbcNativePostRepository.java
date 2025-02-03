@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.model.Post;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class JdbcNativePostRepository implements PostRepository {
@@ -18,14 +19,50 @@ public class JdbcNativePostRepository implements PostRepository {
     @Override
     public List<Post> findAll() {
         return jdbcTemplate.query(
-                "select id, title, image, content, like_count from posts order by id desc",
-                (rs, rowNum) -> new Post(
-                        rs.getLong("id"),
-                        rs.getString("title"),
-                        rs.getString("image"),
-                        rs.getString("content"),
-                        rs.getInt("like_count")
-                ));
+                """
+                        select p.id,
+                               p.title, 
+                               p.image, 
+                               p.content, 
+                               p.like_count,
+                               t.id as tag_id,
+                               t.name as tag_name,
+                               c.id as comment_id,
+                               c.description as comment_description
+                        from posts p 
+                                 left join posts_tags pt on p.id = pt.post_id
+                                 left join tags t on pt.tag_id = t.id
+                                 left join comments c on p.id = c.post_id
+                        order by p.id
+                        """,
+                new PostMapper()
+        );
+    }
+
+    @Override
+    public Post findById(Long id) {
+        return Objects.requireNonNull(jdbcTemplate.query(
+                        """
+                                select p.id,
+                                       p.title, 
+                                       p.image, 
+                                       p.content, 
+                                       p.like_count,
+                                       t.id as tag_id,
+                                       t.name as tag_name,
+                                       c.id as comment_id,
+                                       c.description as comment_description
+                                from posts p 
+                                         left join posts_tags pt on p.id = pt.post_id
+                                         left join tags t on pt.tag_id = t.id
+                                         left join comments c on p.id = c.post_id
+                                where p.id = ?
+                                order by t.id, c.id
+                                """,
+                        new PostMapper(),
+                        id
+                ))
+                .getFirst();
     }
 
     @Override

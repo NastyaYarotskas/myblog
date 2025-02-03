@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Название поста</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .post {
+            margin-bottom: 20px;
+        }
+        .post h1 {
+            margin-top: 0;
+        }
+        .post img {
+            max-width: 100%;
+            height: auto;
+        }
+        .post .content {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        .post .tags {
+            margin-top: 20px;
+        }
+        .post .tags span {
+            display: inline-block;
+            background-color: #eee;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        .post .actions {
+            margin-top: 20px;
+        }
+        .post .actions button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .tags-form {
+            background-color: #eee;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            border-radius: 15px;
+            color: #555;
+        }
+        .comments {
+            margin-top: 40px;
+        }
+        .comments h2 {
+            margin-bottom: 20px;
+        }
+        .comment {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .comment:last-child {
+            border-bottom: none;
+        }
+        .comment .actions {
+            margin-top: 10px;
+        }
+        .comment .actions button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #eee;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .add-comment {
+            margin-top: 40px;
+        }
+        .add-comment textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .add-comment button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="post">
+        <h1 th:text="${post.title}"></h1>
+        <img th:src="${post.image}" alt="Изображение поста">
+        <div class="content">
+            <p th:text="${post.content}"></p>
+        </div>
+        <div class="tags">
+            <div class="tags-form" th:each="tag : ${post.tags}">
+                <span th:text="${tag.name}"></span>
+            </div>
+        </div>
+        <div class="actions">
+            <button id="like-btn">❤️ Лайк (<span id="like-count" th:text="${post.likeCount}"></span>)</button>
+            <button id="edit-post">Редактировать</button>
+            <button id="delete-post">Удалить</button>
+        </div>
+    </div>
+
+    <div class="comments">
+        <h2>Комментарии</h2>
+        <div class="comment" th:each="comment : ${post.comments}">
+            <p th:text="${comment.description}"></p>
+            <div class="actions">
+                <button class="edit-comment">Редактировать</button>
+                <button class="delete-comment">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-comment">
+        <h2>Добавить комментарий</h2>
+        <textarea id="comment-text" placeholder="Ваш комментарий"></textarea>
+        <button id="submit-comment">Отправить</button>
+    </div>
+</div>
+
+<script>
+    // Логика для лайков
+    document.getElementById('like-btn').addEventListener('click', function() {
+        let likeCount = document.getElementById('like-count');
+        let currentLikes = parseInt(likeCount.textContent);
+        likeCount.textContent = currentLikes + 1;
+    });
+
+    // Логика для добавления комментария
+    document.getElementById('submit-comment').addEventListener('click', function() {
+        let commentText = document.getElementById('comment-text').value;
+        if (commentText.trim() !== '') {
+            let commentsSection = document.querySelector('.comments');
+            let newComment = document.createElement('div');
+            newComment.classList.add('comment');
+            newComment.innerHTML = `
+                <p>${commentText}</p>
+                <div class="actions">
+                    <button class="edit-comment">Редактировать</button>
+                    <button class="delete-comment">Удалить</button>
+                </div>
+            `;
+            commentsSection.appendChild(newComment);
+            document.getElementById('comment-text').value = '';
+        }
+    });
+
+    // Логика для редактирования и удаления комментариев
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('edit-comment')) {
+            let commentText = event.target.closest('.comment').querySelector('p');
+            let newText = prompt('Редактировать комментарий:', commentText.textContent);
+            if (newText !== null) {
+                commentText.textContent = newText;
+            }
+        } else if (event.target.classList.contains('delete-comment')) {
+            event.target.closest('.comment').remove();
+        }
+    });
+
+    // Логика для редактирования и удаления поста
+    document.getElementById('edit-post').addEventListener('click', function() {
+        alert('Редактирование поста (здесь можно открыть форму для редактирования)');
+    });
+
+    document.getElementById('delete-post').addEventListener('click', function() {
+        if (confirm('Вы уверены, что хотите удалить этот пост?')) {
+            alert('Пост удален (здесь можно добавить логику для удаления)');
+        }
+    });
+</script>
+</body>
+</html>

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,4 +17,6 @@ public class Post {
     private String image;
     private String content;
     private int likeCount;
+    private Set<Tag> tags;
+    private Set<Comment> comments;
 }
