@@ -198,6 +198,20 @@
             min-height: 100px;
         }
 
+        .tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tags-form {
+            background-color: #eee;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            border-radius: 15px;
+            color: #555;
+        }
+
         /* Стили для пагинации */
         .pagination {
             text-align: center;
@@ -248,12 +262,12 @@
         <p th:text="${post.content}"/>
         <div class="meta">
             <span th:text="${'Лайки ' + post.likeCount}"></span>
-            <span>Комментарии: 12</span>
+            <span th:text="${'Комментарии ' + post.comments.size}"></span>
         </div>
         <div class="tags">
-            <span>Путешествия</span>
-            <span>Горы</span>
-            <span>Советы</span>
+            <div class="tags-form" th:each="tag : ${post.tags}">
+                <span th:text="${tag.name}"></span>
+            </div>
         </div>
         <div class="actions">
             <button class="like-btn">❤️ Лайк</button>
@@ -277,11 +291,6 @@
     document.getElementById('add-post-btn').addEventListener('click', function() {
         document.getElementById('add-post-form').style.display = 'block';
     });
-
-<!--    document.getElementById('submit-post').addEventListener('click', function() {-->
-<!--        alert('Пост добавлен!');-->
-<!--        document.getElementById('add-post-form').style.display = 'none';-->
-<!--    });-->
 </script>
 
 </body>

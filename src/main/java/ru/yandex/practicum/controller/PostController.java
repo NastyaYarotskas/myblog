@@ -26,6 +26,13 @@ public class PostController {
         return "posts_page";
     }
 
+    @GetMapping(value = "/{id}")
+    public String getById(Model model, @PathVariable(name = "id") Long id) {
+        Post post = service.findById(id);
+        model.addAttribute("post", post);
+        return "post_page";
+    }
+
     @PostMapping
     public String save(@ModelAttribute Post post) {
         service.save(post);
