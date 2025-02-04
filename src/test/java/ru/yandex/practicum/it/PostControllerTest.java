@@ -73,4 +73,16 @@ class PostControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/posts"));
     }
+
+    @Test
+    void updatePost_postIsPresent_shouldUpdatePostFromDatabaseAndRedirect() throws Exception {
+        mockMvc.perform(post("/posts/1")
+                        .param("_method", "put")
+                        .param("title", "Новый пост")
+                        .param("image", "img")
+                        .param("content", "Содержание поста")
+                )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/posts/1"));
+    }
 }
