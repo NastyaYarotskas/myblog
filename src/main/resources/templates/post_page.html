@@ -109,6 +109,52 @@
             border-radius: 3px;
             cursor: pointer;
         }
+        .edit-form {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-form input,
+        .edit-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .edit-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .edit-form button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .edit-form button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .edit-form button[type="button"] {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .edit-form button:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -126,8 +172,24 @@
         </div>
         <div class="actions">
             <button id="like-btn">❤️ Лайк (<span id="like-count" th:text="${post.likeCount}"></span>)</button>
-            <button id="edit-post">Редактировать</button>
+            <button id="edit-post" onclick="openEditForm()">Редактировать</button>
             <button id="delete-post">Удалить</button>
+        </div>
+        <!-- Форма редактирования (скрыта по умолчанию) -->
+        <div class="edit-form" id="edit-form" style="display: none;">
+            <form th:action="@{/posts/{id}?_method=put(id=${post.id})}" th:object="${new_post}" method="POST">
+                <label for="title"></label>
+                <input type="text" id="title" name="title" th:field="${post.title}" required="required"/>
+
+                <label for="image"></label>
+                <input type="text" id="image" name="image" th:field="${post.image}" required="required"/>
+
+                <label for="content"></label>
+                <textarea id="content" name="content" th:field="${post.content}" required="required"></textarea>
+
+                <button type="submit">Сохранить изменения</button>
+                <button type="button" onclick="closeEditForm()">Отмена</button>
+            </form>
         </div>
     </div>
 
@@ -150,6 +212,16 @@
 </div>
 
 <script>
+    // Функция для открытия формы редактирования
+    function openEditForm() {
+        document.getElementById('edit-form').style.display = 'block';
+    }
+
+    // Функция для закрытия формы редактирования
+    function closeEditForm() {
+        document.getElementById('edit-form').style.display = 'none';
+    }
+
     // Логика для лайков
     document.getElementById('like-btn').addEventListener('click', function() {
         let likeCount = document.getElementById('like-count');
@@ -187,11 +259,6 @@
         } else if (event.target.classList.contains('delete-comment')) {
             event.target.closest('.comment').remove();
         }
-    });
-
-    // Логика для редактирования и удаления поста
-    document.getElementById('edit-post').addEventListener('click', function() {
-        alert('Редактирование поста (здесь можно открыть форму для редактирования)');
     });
 
     document.getElementById('delete-post').addEventListener('click', function() {

@@ -39,6 +39,13 @@ public class PostController {
         return "redirect:/posts";
     }
 
+    @PostMapping(value = "/{id}", params = "_method=put")
+    public String updatePost(@PathVariable(name = "id") Long id, @ModelAttribute Post post) {
+        post.setId(id);
+        service.updatePost(post);
+        return "redirect:/posts/" + id;
+    }
+
     @PostMapping(value = "/{id}", params = "_method=delete")
     public String delete(@PathVariable(name = "id") Long id) {
         service.deleteById(id);
