@@ -91,6 +91,7 @@
         }
         .comment .actions {
             margin-top: 10px;
+            display: flex;
         }
         .comment .actions button {
             padding: 5px 10px;
@@ -168,6 +169,46 @@
         .edit-form button:hover {
             opacity: 0.9;
         }
+
+        .edit-comment-form {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .edit-comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .edit-comment-form button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-right: 5px;
+        }
+
+        .edit-comment-form button[type="submit"] {
+            background-color: #28a745; /* Зелёный цвет */
+            color: white;
+        }
+
+        .edit-comment-form button[type="button"] {
+            background-color: #6c757d; /* Серый цвет */
+            color: white;
+        }
+
+        .edit-comment-form button:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -211,16 +252,36 @@
         <div class="comment" th:each="comment : ${post.comments}">
             <p th:text="${comment.description}"></p>
             <div class="actions">
-                <button class="edit-comment">Редактировать</button>
-                <button class="delete-comment">Удалить</button>
+                <button class="edit-btn" th:data-id="${comment.id}"
+                        onclick="openEditCommentForm(this.getAttribute('data-id'))">Редактировать
+                </button>
+                <form th:action="@{/posts/{post-id}/comments/{comment-id}?_method=delete(post-id=${post.id}, comment-id=${comment.id})}"
+                      method="post">
+                    <button class="delete-btn">Удалить</button>
+                </form>
+            </div>
+
+            <!-- Форма редактирования комментария (скрыта по умолчанию) -->
+            <div class="edit-comment-form" th:id="'edit-comment-form-' + ${comment.id}" style="display: none;">
+                <form th:action="@{/posts/{postId}/comments/{commentId}?_method=put(postId=${post.id}, commentId=${comment.id})}"
+                      method="POST">
+                    <textarea name="description" th:text="${comment.description}" required></textarea>
+                    <button type="submit">Сохранить</button>
+                    <button type="button" th:data-id="${comment.id}"
+                            onclick="closeEditCommentForm(this.getAttribute('data-id'))">Отмена
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
     <div class="add-comment">
         <h2>Добавить комментарий</h2>
-        <textarea id="comment-text" placeholder="Ваш комментарий"></textarea>
-        <button id="submit-comment">Отправить</button>
+        <form th:action="@{/posts/{id}/comments(id=${post.id})}" method="POST">
+            <label for="description"></label>
+            <textarea id="description" name="description" placeholder="Ваш комментарий" required="required"></textarea>
+            <button type="submit">Отправить</button>
+        </form>
     </div>
 </div>
 
@@ -235,49 +296,19 @@
         document.getElementById('edit-form').style.display = 'none';
     }
 
+    function openEditCommentForm(commentId) {
+        document.getElementById('edit-comment-form-' + commentId).style.display = 'block';
+    }
+
+    function closeEditCommentForm(commentId) {
+        document.getElementById('edit-comment-form-' + commentId).style.display = 'none';
+    }
+
     // Логика для лайков
     document.getElementById('like-btn').addEventListener('click', function() {
         let likeCount = document.getElementById('like-count');
         let currentLikes = parseInt(likeCount.textContent);
         likeCount.textContent = currentLikes + 1;
-    });
-
-    // Логика для добавления комментария
-    document.getElementById('submit-comment').addEventListener('click', function() {
-        let commentText = document.getElementById('comment-text').value;
-        if (commentText.trim() !== '') {
-            let commentsSection = document.querySelector('.comments');
-            let newComment = document.createElement('div');
-            newComment.classList.add('comment');
-            newComment.innerHTML = `
-                <p>${commentText}</p>
-                <div class="actions">
-                    <button class="edit-comment">Редактировать</button>
-                    <button class="delete-comment">Удалить</button>
-                </div>
-            `;
-            commentsSection.appendChild(newComment);
-            document.getElementById('comment-text').value = '';
-        }
-    });
-
-    // Логика для редактирования и удаления комментариев
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('edit-comment')) {
-            let commentText = event.target.closest('.comment').querySelector('p');
-            let newText = prompt('Редактировать комментарий:', commentText.textContent);
-            if (newText !== null) {
-                commentText.textContent = newText;
-            }
-        } else if (event.target.classList.contains('delete-comment')) {
-            event.target.closest('.comment').remove();
-        }
-    });
-
-    document.getElementById('delete-post').addEventListener('click', function() {
-        if (confirm('Вы уверены, что хотите удалить этот пост?')) {
-            alert('Пост удален (здесь можно добавить логику для удаления)');
-        }
     });
 </script>
 </body>
