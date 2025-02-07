@@ -1,12 +1,16 @@
 package ru.yandex.practicum.controller;
 
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.Post;
+import ru.yandex.practicum.request.PostRequest;
 import ru.yandex.practicum.service.PostService;
 
 import java.util.List;
+
+import static ru.yandex.practicum.mapper.PostMapper.mapToPost;
 
 @Controller
 @RequestMapping("/posts")
@@ -33,14 +37,18 @@ public class PostController {
         return "post_page";
     }
 
+    @SneakyThrows
     @PostMapping
-    public String save(@ModelAttribute Post post) {
+    public String save(@ModelAttribute PostRequest request) {
+        Post post = mapToPost(request);
         service.save(post);
         return "redirect:/posts";
     }
 
+    @SneakyThrows
     @PostMapping(value = "/{id}", params = "_method=put")
-    public String updatePost(@PathVariable(name = "id") Long id, @ModelAttribute Post post) {
+    public String updatePost(@PathVariable(name = "id") Long id, @ModelAttribute PostRequest request) {
+        Post post = mapToPost(request);
         post.setId(id);
         service.updatePost(post);
         return "redirect:/posts/" + id;

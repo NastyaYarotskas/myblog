@@ -215,7 +215,7 @@
 <div class="container">
     <div class="post">
         <h1 th:text="${post.title}"></h1>
-        <img th:src="${post.image}" alt="Изображение поста">
+        <img th:src="@{'data:image/jpeg;base64,'+${post.image}}" alt="Изображение поста"></img>
         <div class="content">
             <p th:text="${post.content}"></p>
         </div>
@@ -231,12 +231,14 @@
         </div>
         <!-- Форма редактирования (скрыта по умолчанию) -->
         <div class="edit-form" id="edit-form" style="display: none;">
-            <form th:action="@{/posts/{id}?_method=put(id=${post.id})}" th:object="${new_post}" method="POST">
+            <form th:action="@{/posts/{id}?_method=put(id=${post.id})}" th:object="${new_post}" method="POST"
+                  enctype="multipart/form-data">
                 <label for="title"></label>
                 <input type="text" id="title" name="title" th:field="${post.title}" required="required"/>
 
                 <label for="image"></label>
-                <input type="text" id="image" name="image" th:field="${post.image}" required="required"/>
+                <input type="file" id="image" name="image" accept="image/*" class="form-control-file"
+                       placeholder="Ссылка на картинку поста" required="required"/>
 
                 <label for="content"></label>
                 <textarea id="content" name="content" th:field="${post.content}" required="required"></textarea>
