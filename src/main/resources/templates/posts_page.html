@@ -251,12 +251,13 @@
     <button id="add-post-btn">Добавить пост</button>
 
     <div class="add-post-form" id="add-post-form">
-        <form th:action="@{/posts}" th:object="${post}" method="POST">
+        <form th:action="@{/posts}" method="POST" th:object="${post}" enctype="multipart/form-data">
             <label for="title"></label>
             <input type="text" id="title" name="title" placeholder="Название поста" required="required"/>
 
             <label for="image"></label>
-            <input type="text" id="image" name="image" placeholder="Ссылка на картинку поста" required="required"/>
+            <input type="file" id="image" name="image" accept="image/*" class="form-control-file"
+                   placeholder="Ссылка на картинку поста" required="required"/>
 
             <label for="content"></label>
             <textarea id="content" name="content" placeholder="Текст поста" required="required"></textarea>
@@ -266,7 +267,7 @@
     </div>
 
     <div class="post" th:each="post : ${posts}">
-        <img th:src="${post.image}"></img>
+        <img th:src="@{'data:image/jpeg;base64,'+${post.image}}"></img>
         <h2 th:text="${post.title}"/>
         <p th:text="${post.content}"/>
         <div class="meta">
