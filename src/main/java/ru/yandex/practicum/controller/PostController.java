@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.request.PostRequest;
 import ru.yandex.practicum.service.PostService;
+import ru.yandex.practicum.service.TagService;
 
 import java.util.List;
+import java.util.Set;
 
 import static ru.yandex.practicum.mapper.PostMapper.mapToPost;
 
@@ -17,16 +19,24 @@ import static ru.yandex.practicum.mapper.PostMapper.mapToPost;
 public class PostController {
 
     private final PostService service;
+    private final TagService tagService;
 
-    public PostController(PostService service) {
+    public PostController(PostService service, TagService tagService) {
         this.service = service;
+        this.tagService = tagService;
     }
 
     @GetMapping
-    public String getAll(Model model) {
-        List<Post> posts = service.findAll();
+    public String getAll(Model model, @RequestParam(value = "tag", required = false) Long tagId) {
+        List<Post> posts;
+        if (tagId != null) {
+            posts = service.filterByTags(Set.of(tagId));
+        } else {
+            posts = service.findAll();
+        }
         model.addAttribute("posts", posts);
         model.addAttribute("count", posts.size());
+        model.addAttribute("allTags", tagService.findAllTags());
         return "posts_page";
     }
 
