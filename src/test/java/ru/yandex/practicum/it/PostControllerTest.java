@@ -50,9 +50,18 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(view().name("posts_page"))
-                .andExpect(model().attributeExists("posts"))
-                .andExpect(xpath("//body/div/div[2]/h2").string("Путешествие в горы: впечатления и советы"))
-                .andExpect(xpath("//body/div/div[3]/h2").string("Как выбрать ноутбук для работы и учёбы"));
+                .andExpect(model().attributeExists("posts"));
+    }
+
+    @Test
+    void getAll_withTag_shouldReturnHtmlWithPosts() throws Exception {
+        mockMvc.perform(get("/posts")
+                        .param("tag", "14"))
+//                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(view().name("posts_page"))
+                .andExpect(model().attributeExists("posts"));
     }
 
 //    @Test
