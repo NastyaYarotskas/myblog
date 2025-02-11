@@ -56,7 +56,7 @@ class PostControllerTest {
     @Test
     void getAll_withTag_shouldReturnHtmlWithPosts() throws Exception {
         mockMvc.perform(get("/posts")
-                        .param("tag", "14"))
+                        .param("tag", "13"))
 //                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/html;charset=UTF-8"))

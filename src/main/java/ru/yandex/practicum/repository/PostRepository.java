@@ -1,16 +1,14 @@
 package ru.yandex.practicum.repository;
 
+import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 
-import java.util.List;
-import java.util.Set;
-
 public interface PostRepository {
-    List<Post> findAll();
+    Page<Post> findAll(int page, int size);
 
     Post findById(Long id);
 
-    List<Post> filterByTags(Set<Long> tags);
+    Page<Post> filterByTags(int page, int size, Long tagId);
 
     void save(Post post);
 

@@ -4,13 +4,11 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.request.PostRequest;
 import ru.yandex.practicum.service.PostService;
 import ru.yandex.practicum.service.TagService;
-
-import java.util.List;
-import java.util.Set;
 
 import static ru.yandex.practicum.mapper.PostMapper.mapToPost;
 
@@ -27,16 +25,23 @@ public class PostController {
     }
 
     @GetMapping
-    public String getAll(Model model, @RequestParam(value = "tag", required = false) Long tagId) {
-        List<Post> posts;
+    public String getAll(Model model,
+                         @RequestParam(value = "tag", required = false) Long tagId,
+                         @RequestParam(value = "page", defaultValue = "0") int page,
+                         @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Page<Post> posts;
         if (tagId != null) {
-            posts = service.filterByTags(Set.of(tagId));
+            posts = service.filterByTags(page, size, tagId);
         } else {
-            posts = service.findAll();
+            posts = service.findAll(page, size);
         }
-        model.addAttribute("posts", posts);
-        model.addAttribute("count", posts.size());
+
+        model.addAttribute("posts", posts.getCollection());
+        model.addAttribute("totalPages", posts.getTotalPages(size));
+        model.addAttribute("currentPage", page);
         model.addAttribute("allTags", tagService.findAllTags());
+
         return "posts_page";
     }
 

@@ -1,11 +1,9 @@
 package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.repository.PostRepository;
-
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class PostService {
@@ -16,16 +14,16 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public List<Post> findAll() {
-        return postRepository.findAll();
+    public Page<Post> findAll(int page, int size) {
+        return postRepository.findAll(page, size);
     }
 
     public Post findById(Long id) {
         return postRepository.findById(id);
     }
 
-    public List<Post> filterByTags(Set<Long> tags) {
-        return postRepository.filterByTags(tags);
+    public Page<Post> filterByTags(int page, int size, Long tagId) {
+        return postRepository.filterByTags(page, size, tagId);
     }
 
     public void save(Post post) {
