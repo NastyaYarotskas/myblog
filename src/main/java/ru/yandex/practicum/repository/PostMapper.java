@@ -3,6 +3,7 @@ package ru.yandex.practicum.repository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.yandex.practicum.model.Comment;
+import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.Tag;
 
@@ -13,12 +14,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class PostMapper implements ResultSetExtractor<List<Post>> {
+public class PostMapper implements ResultSetExtractor<Page<Post>> {
 
     @Override
-    public List<Post> extractData(ResultSet rs) throws SQLException, DataAccessException {
+    public Page<Post> extractData(ResultSet rs) throws SQLException, DataAccessException {
         Map<Long, Post> result = new HashMap<>();
+        int total = 0;
         while (rs.next()) {
+            if (rs.isFirst()) {
+                total = rs.getInt("total");
+            }
             Post post = new Post(
                     rs.getLong("id"),
                     rs.getString("title"),
@@ -31,8 +36,8 @@ public class PostMapper implements ResultSetExtractor<List<Post>> {
             result.putIfAbsent(rs.getLong("id"), post);
             if (rs.getLong("tag_id") != 0) {
                 Tag tag = new Tag(
-                        rs.getLong("id"),
-                        rs.getString("name")
+                        rs.getLong("tag_id"),
+                        rs.getString("tag_name")
                 );
                 result.get(rs.getLong("id")).getTags().add(tag);
             }
@@ -45,6 +50,8 @@ public class PostMapper implements ResultSetExtractor<List<Post>> {
                 result.get(rs.getLong("id")).getComments().add(comment);
             }
         }
-        return result.values().stream().sorted((o1, o2) -> o2.getId().compareTo(o1.getId())).toList();
+
+        List<Post> posts = result.values().stream().sorted((o1, o2) -> o2.getId().compareTo(o1.getId())).toList();
+        return new Page<>(posts, total);
     }
 }

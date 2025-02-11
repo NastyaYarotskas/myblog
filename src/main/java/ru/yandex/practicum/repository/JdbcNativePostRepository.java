@@ -2,12 +2,11 @@ package ru.yandex.practicum.repository;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 @Repository
 public class JdbcNativePostRepository implements PostRepository {
@@ -19,24 +18,35 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public List<Post> findAll() {
+    public Page<Post> findAll(int page, int size) {
+
         return jdbcTemplate.query(
                 """
+                        with paged_posts as (
+                            select id, (select count(*) from posts) as total
+                            from posts
+                            order by id desc
+                            limit :limit
+                            offset :offset
+                        )
                         select p.id,
                                p.title, 
                                p.image, 
                                p.content, 
                                p.like_count,
+                               pp.total,
                                t.id as tag_id,
                                t.name as tag_name,
                                c.id as comment_id,
                                c.description as comment_description
-                        from posts p 
+                        from paged_posts pp
+                                 inner join posts p on p.id = pp.id 
                                  left join posts_tags pt on p.id = pt.post_id
                                  left join tags t on pt.tag_id = t.id
                                  left join comments c on p.id = c.post_id
-                        order by p.id
+                        order by p.id desc
                         """,
+                Map.of("limit", size, "offset", page * size),
                 new PostMapper()
         );
     }
@@ -53,7 +63,8 @@ public class JdbcNativePostRepository implements PostRepository {
                                        t.id as tag_id,
                                        t.name as tag_name,
                                        c.id as comment_id,
-                                       c.description as comment_description
+                                       c.description as comment_description,
+                                       1 as total
                                 from posts p 
                                          left join posts_tags pt on p.id = pt.post_id
                                          left join tags t on pt.tag_id = t.id
@@ -64,36 +75,39 @@ public class JdbcNativePostRepository implements PostRepository {
                         Map.of("id", id),
                         new PostMapper()
                 ))
-                .getFirst();
+                .getCollection().getFirst();
     }
 
     @Override
-    public List<Post> filterByTags(Set<Long> tags) {
+    public Page<Post> filterByTags(int page, int size, Long tagId) {
         return jdbcTemplate.query(
                 """
                         with filtered_posts as (
-                            select p.*
+                            select p.id, count(*) as total
                             from posts p 
-                                     left join posts_tags pt on p.id = pt.post_id
-                                     left join tags t on pt.tag_id = t.id
-                            where t.id in (:tags)
+                                     inner join posts_tags pt on p.id = pt.post_id
+                                     inner join tags t on pt.tag_id = t.id
+                            where t.id = :tagId
+                            group by p.id
                         )
                         select p.id,
                                p.title, 
                                p.image, 
                                p.content, 
                                p.like_count,
+                               pp.total,
                                t.id as tag_id,
                                t.name as tag_name,
                                c.id as comment_id,
                                c.description as comment_description
-                        from filtered_posts p 
+                        from filtered_posts pp
+                                 inner join posts p on pp.id = p.id
                                  left join posts_tags pt on p.id = pt.post_id
                                  left join tags t on pt.tag_id = t.id
                                  left join comments c on p.id = c.post_id
                         order by p.id
                         """,
-                Map.of("tags", tags),
+                Map.of("tagId", tagId),
                 new PostMapper()
         );
     }
