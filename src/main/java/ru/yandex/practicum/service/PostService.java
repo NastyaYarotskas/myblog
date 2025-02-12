@@ -15,7 +15,9 @@ public class PostService {
     }
 
     public Page<Post> findAll(int page, int size) {
-        return postRepository.findAll(page, size);
+        Page<Post> posts = postRepository.findAll(page, size);
+        updateContent(posts);
+        return posts;
     }
 
     public Post findById(Long id) {
@@ -23,7 +25,9 @@ public class PostService {
     }
 
     public Page<Post> filterByTags(int page, int size, Long tagId) {
-        return postRepository.filterByTags(page, size, tagId);
+        Page<Post> posts = postRepository.filterByTags(page, size, tagId);
+        updateContent(posts);
+        return posts;
     }
 
     public void save(Post post) {
@@ -40,5 +44,16 @@ public class PostService {
 
     public void likePost(Long id) {
         postRepository.likePost(id);
+    }
+
+    private void updateContent(Page<Post> posts) {
+        posts.getCollection()
+                .forEach(post -> post.setContent(getShortContent(post)));
+    }
+
+    private String getShortContent(Post post) {
+        String content = post.getContent();
+        String shortContent = content.length() > 200 ? content.substring(0, 199) : content;
+        return shortContent + "...";
     }
 }

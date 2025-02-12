@@ -149,40 +149,6 @@
             color: #555;
         }
 
-        /* Стили для кнопок */
-        .actions {
-            margin-top: 15px;
-        }
-
-        .actions button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-            margin-right: 10px;
-        }
-
-        .actions button.like-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .actions button.edit-btn {
-            background-color: #ffc107;
-            color: black;
-        }
-
-        .actions button.delete-btn {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .actions button:hover {
-            opacity: 0.9;
-        }
-
         /* Стили для формы добавления поста */
         .add-post-form {
             display: none;
@@ -366,14 +332,6 @@
                 <span th:text="${tag.name}"></span>
             </div>
         </div>
-        <div class="actions">
-            <button class="like-btn" th:data-id="${post.id}" onclick="likePost(this.getAttribute('data-id'))">❤️ Лайк
-            </button>
-            <button class="edit-btn">✏️ Редактировать</button>
-            <form th:action="@{/posts/{id}?_method=delete(id=${post.id})}" method="post">
-                <button class="delete-btn">🗑️ Удалить</button>
-            </form>
-        </div>
     </div>
 
     <div class="pagination">
@@ -403,26 +361,6 @@
     function toggleFilter() {
         const filterSidebar = document.getElementById('filter-sidebar');
         filterSidebar.classList.toggle('show');
-    }
-
-    function likePost(postId) {
-        // Отправляем запрос на сервер
-        fetch('/my-blog/posts/' + postId + '/like', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-        })
-        .then(response => {
-            if (response.ok) {
-                window.location.href=window.location.href;
-            } else {
-                throw new Error('Ошибка при отправке лайка');
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-        });
     }
 </script>
 
