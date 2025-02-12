@@ -116,6 +116,10 @@
             color: #007BFF;
         }
 
+        .post h2 a {
+            color: #007BFF;
+        }
+
         .post p {
             color: #555;
             margin-bottom: 15px;
@@ -349,7 +353,9 @@
 
     <div class="post" th:each="post : ${posts}">
         <img th:src="@{'data:image/jpeg;base64,'+${post.image}}"></img>
-        <h2 th:text="${post.title}"/>
+        <h2>
+            <a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Название поста</a>
+        </h2>
         <p th:text="${post.content}"/>
         <div class="meta">
             <span th:text="${'Лайки ' + post.likeCount}"></span>
