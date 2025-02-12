@@ -104,7 +104,7 @@
         .add-comment {
             margin-top: 40px;
         }
-        .add-comment textarea {
+        textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -252,7 +252,8 @@
     <div class="comments">
         <h2>Комментарии</h2>
         <div class="comment" th:each="comment : ${post.comments}">
-            <p th:text="${comment.description}"></p>
+            <textarea th:id="'comment-edit-textarea-' + ${comment.id} + '-' + ${post.id}"
+                      th:text="${comment.description}"></textarea>
             <div class="actions">
                 <button class="edit-btn" th:data-id="${comment.id}"
                         onclick="openEditCommentForm(this.getAttribute('data-id'))">Редактировать
@@ -312,6 +313,52 @@
         let currentLikes = parseInt(likeCount.textContent);
         likeCount.textContent = currentLikes + 1;
     });
+
+    // Функция для сохранения комментария
+    function saveComment(commentId, postId) {
+        const textarea = document.getElementById('comment-edit-textarea-' + commentId + '-' + postId);
+        const newText = textarea.value;
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+        const urlencoded = new URLSearchParams();
+        urlencoded.append("description", newText);
+
+        const requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: urlencoded,
+          redirect: "follow"
+        };
+
+        // Отправляем изменения на сервер
+        fetch('/my-blog/posts/' + postId + '/comments/' + commentId + '?_method=put', requestOptions)
+        .then(response => {
+            if (response.ok) {
+                // Обновляем текст комментария на странице
+                window.location.href=window.location.href;
+            } else {
+                alert('Ошибка');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
+    }
+
+    // Обработка нажатия Ctrl + Enter
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'Enter') {
+            const activeTextarea = document.activeElement;
+            if (activeTextarea && activeTextarea.tagName === 'TEXTAREA') {
+                const ids = activeTextarea.id.replace('comment-edit-textarea-', '');
+                const words = ids.split('-');
+                saveComment(words[0], words[1]);
+            }
+        }
+    });
+
 </script>
 </body>
 </html>
