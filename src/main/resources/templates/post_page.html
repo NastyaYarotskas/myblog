@@ -225,7 +225,9 @@
             </div>
         </div>
         <div class="actions">
-            <button id="like-btn">❤️ Лайк (<span id="like-count" th:text="${post.likeCount}"></span>)</button>
+            <button id="like-btn" th:data-id="${post.id}" onclick="likePost(this.getAttribute('data-id'))">❤️ Лайк
+                (<span id="like-count" th:text="${post.likeCount}"></span>)
+            </button>
             <button id="edit-post" onclick="openEditForm()">Редактировать</button>
             <button id="delete-post">Удалить</button>
         </div>
@@ -358,6 +360,26 @@
             }
         }
     });
+
+    function likePost(postId) {
+        // Отправляем запрос на сервер
+        fetch('/my-blog/posts/' + postId + '/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href=window.location.href;
+            } else {
+                throw new Error('Ошибка при отправке лайка');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
+    }
 
 </script>
 </body>

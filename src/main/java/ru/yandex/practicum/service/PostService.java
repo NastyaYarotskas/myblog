@@ -37,4 +37,8 @@ public class PostService {
     public void updatePost(Post post) {
         postRepository.update(post);
     }
+
+    public void likePost(Long id) {
+        postRepository.likePost(id);
+    }
 }
