@@ -74,4 +74,10 @@ public class PostController {
         service.deleteById(id);
         return "redirect:/posts";
     }
+
+    @PostMapping(value = "/{id}/like")
+    public String likePost(@PathVariable(name = "id") Long id) {
+        service.likePost(id);
+        return "redirect:/posts/" + id;
+    }
 }
