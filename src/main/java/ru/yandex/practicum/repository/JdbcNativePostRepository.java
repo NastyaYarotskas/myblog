@@ -1,9 +1,14 @@
 package ru.yandex.practicum.repository;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
+import ru.yandex.practicum.model.Tag;
 
 import java.util.Map;
 import java.util.Objects;
@@ -114,10 +119,52 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public void save(Post post) {
-        jdbcTemplate.update("insert into posts(title, content, image) values(:title, :content, :image)",
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        MapSqlParameterSource params = new MapSqlParameterSource().addValues(
                 Map.of("title", post.getTitle(),
                         "content", post.getContent(),
-                        "image", post.getImage()));
+                        "image", post.getImage()
+                )
+        );
+        jdbcTemplate.update("insert into posts(title, content, image) values(:title, :content, :image)",
+                params,
+                keyHolder
+        );
+
+        // Получаем ID нового поста
+        long postId = keyHolder.getKey().longValue();
+
+        // Сохраняем теги
+        for (Tag tag : post.getTags()) {
+            Long tagId;
+            try {
+                // Проверяем, существует ли тег
+                tagId = jdbcTemplate.queryForObject(
+                        "SELECT id FROM tags WHERE name = :name",
+                        Map.of("name", tag.getName()),
+                        (rs, num) -> rs.getLong("id")
+                );
+            } catch (EmptyResultDataAccessException exception) {
+                tagId = null;
+            }
+
+            // Если тег не существует, создаём его
+            if (tagId == null) {
+                KeyHolder tagKeyHolder = new GeneratedKeyHolder();
+                MapSqlParameterSource tagParams = new MapSqlParameterSource().addValues(
+                        Map.of("tagName", tag.getName())
+                );
+                jdbcTemplate.update("INSERT INTO tags(name) VALUES (:tagName)",
+                        tagParams, tagKeyHolder);
+                tagId = tagKeyHolder.getKey().longValue();
+            }
+
+            // Связываем пост с тегом
+            jdbcTemplate.update(
+                    "INSERT INTO posts_tags(post_id, tag_id) VALUES (:postId, :tagId)",
+                    Map.of("tagId", tagId, "postId", postId)
+            );
+        }
     }
 
     @Override
@@ -134,6 +181,43 @@ public class JdbcNativePostRepository implements PostRepository {
                         "image", post.getImage(),
                         "id", post.getId())
         );
+
+        jdbcTemplate.update(
+                "DELETE FROM posts_tags WHERE post_id = :postId",
+                Map.of("postId", post.getId())
+        );
+
+        // Сохраняем теги
+        for (Tag tag : post.getTags()) {
+            Long tagId;
+            try {
+                // Проверяем, существует ли тег
+                tagId = jdbcTemplate.queryForObject(
+                        "SELECT id FROM tags WHERE name = :name",
+                        Map.of("name", tag.getName()),
+                        (rs, num) -> rs.getLong("id")
+                );
+            } catch (EmptyResultDataAccessException exception) {
+                tagId = null;
+            }
+
+            // Если тег не существует, создаём его
+            if (tagId == null) {
+                KeyHolder tagKeyHolder = new GeneratedKeyHolder();
+                MapSqlParameterSource tagParams = new MapSqlParameterSource().addValues(
+                        Map.of("tagName", tag.getName())
+                );
+                jdbcTemplate.update("INSERT INTO tags(name) VALUES (:tagName)",
+                        tagParams, tagKeyHolder);
+                tagId = tagKeyHolder.getKey().longValue();
+            }
+
+            // Связываем пост с тегом
+            jdbcTemplate.update(
+                    "INSERT INTO posts_tags(post_id, tag_id) VALUES (:postId, :tagId)",
+                    Map.of("tagId", tagId, "postId", post.getId())
+            );
+        }
     }
 
     @Override
