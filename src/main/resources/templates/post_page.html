@@ -245,6 +245,9 @@
                 <label for="content"></label>
                 <textarea id="content" name="content" th:field="${post.content}" required="required"></textarea>
 
+                <label for="tags"></label>
+                <textarea id="tags" name="tags" placeholder="Теги (через запятую)"></textarea>
+
                 <button type="submit">Сохранить изменения</button>
                 <button type="button" onclick="closeEditForm()">Отмена</button>
             </form>
