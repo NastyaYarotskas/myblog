@@ -1,4 +1,4 @@
-package ru.yandex.practicum.repository;
+package ru.yandex.practicum.mapper;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -10,11 +10,11 @@ import ru.yandex.practicum.model.Tag;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-public class PostMapper implements ResultSetExtractor<Page<Post>> {
+public class PostsMapper implements ResultSetExtractor<Page<Post>> {
 
     @Override
     public Page<Post> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -30,8 +30,8 @@ public class PostMapper implements ResultSetExtractor<Page<Post>> {
                     rs.getString("image"),
                     rs.getString("content"),
                     rs.getInt("like_count"),
-                    new HashSet<>(),
-                    new HashSet<>()
+                    new LinkedHashSet<>(),
+                    new LinkedHashSet<>()
             );
             result.putIfAbsent(rs.getLong("id"), post);
             if (rs.getLong("tag_id") != 0) {

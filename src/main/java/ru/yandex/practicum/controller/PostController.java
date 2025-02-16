@@ -10,7 +10,7 @@ import ru.yandex.practicum.request.PostRequest;
 import ru.yandex.practicum.service.PostService;
 import ru.yandex.practicum.service.TagService;
 
-import static ru.yandex.practicum.mapper.PostMapper.mapToPost;
+import static ru.yandex.practicum.converter.PostConverter.mapToPost;
 
 @Controller
 @RequestMapping("/posts")

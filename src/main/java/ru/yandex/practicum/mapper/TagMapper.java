@@ -1,4 +1,4 @@
-package ru.yandex.practicum.repository;
+package ru.yandex.practicum.mapper;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
