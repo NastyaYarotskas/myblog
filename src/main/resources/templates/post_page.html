@@ -55,6 +55,7 @@
         }
         .post .actions {
             margin-top: 20px;
+            display: flex;
         }
         .post .actions button {
             padding: 10px 20px;
@@ -229,7 +230,9 @@
                 (<span id="like-count" th:text="${post.likeCount}"></span>)
             </button>
             <button id="edit-post" onclick="openEditForm()">Редактировать</button>
-            <button id="delete-post">Удалить</button>
+            <form th:action="@{/posts/{id}?_method=delete(id=${post.id})}" method="post">
+                <button class="delete-btn">Удалить</button>
+            </form>
         </div>
         <!-- Форма редактирования (скрыта по умолчанию) -->
         <div class="edit-form" id="edit-form" style="display: none;">
