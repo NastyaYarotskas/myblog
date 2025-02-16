@@ -6,12 +6,15 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.error.PostNotFoundException;
+import ru.yandex.practicum.mapper.PostMapper;
+import ru.yandex.practicum.mapper.PostsMapper;
 import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.Tag;
 
 import java.util.Map;
-import java.util.Objects;
+import java.util.NoSuchElementException;
 
 @Repository
 public class JdbcNativePostRepository implements PostRepository {
@@ -52,35 +55,38 @@ public class JdbcNativePostRepository implements PostRepository {
                         order by p.id desc
                         """,
                 Map.of("limit", size, "offset", page * size),
-                new PostMapper()
+                new PostsMapper()
         );
     }
 
     @Override
     public Post findById(Long id) {
-        return Objects.requireNonNull(jdbcTemplate.query(
-                        """
-                                select p.id,
-                                       p.title, 
-                                       p.image, 
-                                       p.content, 
-                                       p.like_count,
-                                       t.id as tag_id,
-                                       t.name as tag_name,
-                                       c.id as comment_id,
-                                       c.description as comment_description,
-                                       1 as total
-                                from posts p 
-                                         left join posts_tags pt on p.id = pt.post_id
-                                         left join tags t on pt.tag_id = t.id
-                                         left join comments c on p.id = c.post_id
-                                where p.id = :id
-                                order by t.id, c.id
-                                """,
-                        Map.of("id", id),
-                        new PostMapper()
-                ))
-                .getCollection().getFirst();
+        try {
+            return jdbcTemplate.query(
+                    """
+                            select p.id,
+                                   p.title, 
+                                   p.image, 
+                                   p.content, 
+                                   p.like_count,
+                                   t.id as tag_id,
+                                   t.name as tag_name,
+                                   c.id as comment_id,
+                                   c.description as comment_description,
+                                   1 as total
+                            from posts p 
+                                     left join posts_tags pt on p.id = pt.post_id
+                                     left join tags t on pt.tag_id = t.id
+                                     left join comments c on p.id = c.post_id
+                            where p.id = :id
+                            order by t.id, c.id
+                            """,
+                    Map.of("id", id),
+                    new PostMapper()
+            ).getFirst();
+        } catch (EmptyResultDataAccessException | NoSuchElementException e) {
+            throw new PostNotFoundException(id);
+        }
     }
 
     @Override
@@ -113,7 +119,7 @@ public class JdbcNativePostRepository implements PostRepository {
                         order by p.id
                         """,
                 Map.of("tagId", tagId),
-                new PostMapper()
+                new PostsMapper()
         );
     }
 
@@ -131,14 +137,11 @@ public class JdbcNativePostRepository implements PostRepository {
                 keyHolder
         );
 
-        // Получаем ID нового поста
         long postId = keyHolder.getKey().longValue();
 
-        // Сохраняем теги
         for (Tag tag : post.getTags()) {
             Long tagId;
             try {
-                // Проверяем, существует ли тег
                 tagId = jdbcTemplate.queryForObject(
                         "SELECT id FROM tags WHERE name = :name",
                         Map.of("name", tag.getName()),
@@ -148,7 +151,6 @@ public class JdbcNativePostRepository implements PostRepository {
                 tagId = null;
             }
 
-            // Если тег не существует, создаём его
             if (tagId == null) {
                 KeyHolder tagKeyHolder = new GeneratedKeyHolder();
                 MapSqlParameterSource tagParams = new MapSqlParameterSource().addValues(
@@ -159,7 +161,6 @@ public class JdbcNativePostRepository implements PostRepository {
                 tagId = tagKeyHolder.getKey().longValue();
             }
 
-            // Связываем пост с тегом
             jdbcTemplate.update(
                     "INSERT INTO posts_tags(post_id, tag_id) VALUES (:postId, :tagId)",
                     Map.of("tagId", tagId, "postId", postId)
@@ -187,11 +188,9 @@ public class JdbcNativePostRepository implements PostRepository {
                 Map.of("postId", post.getId())
         );
 
-        // Сохраняем теги
         for (Tag tag : post.getTags()) {
             Long tagId;
             try {
-                // Проверяем, существует ли тег
                 tagId = jdbcTemplate.queryForObject(
                         "SELECT id FROM tags WHERE name = :name",
                         Map.of("name", tag.getName()),
@@ -201,7 +200,6 @@ public class JdbcNativePostRepository implements PostRepository {
                 tagId = null;
             }
 
-            // Если тег не существует, создаём его
             if (tagId == null) {
                 KeyHolder tagKeyHolder = new GeneratedKeyHolder();
                 MapSqlParameterSource tagParams = new MapSqlParameterSource().addValues(
@@ -212,7 +210,6 @@ public class JdbcNativePostRepository implements PostRepository {
                 tagId = tagKeyHolder.getKey().longValue();
             }
 
-            // Связываем пост с тегом
             jdbcTemplate.update(
                     "INSERT INTO posts_tags(post_id, tag_id) VALUES (:postId, :tagId)",
                     Map.of("tagId", tagId, "postId", post.getId())

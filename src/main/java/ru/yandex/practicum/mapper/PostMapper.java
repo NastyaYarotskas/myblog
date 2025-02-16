@@ -1,37 +1,47 @@
 package ru.yandex.practicum.mapper;
 
+import org.springframework.jdbc.core.RowMapper;
+import ru.yandex.practicum.model.Comment;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.Tag;
-import ru.yandex.practicum.request.PostRequest;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedHashSet;
 
-public class PostMapper {
+public class PostMapper implements RowMapper<Post> {
+    @Override
+    public Post mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Post result = null;
+        do {
+            if (result == null) {
+                result = new Post(
+                        rs.getLong("id"),
+                        rs.getString("title"),
+                        rs.getString("image"),
+                        rs.getString("content"),
+                        rs.getInt("like_count"),
+                        new LinkedHashSet<>(),
+                        new LinkedHashSet<>()
+                );
+            }
+            if (rs.getLong("tag_id") != 0) {
+                Tag tag = new Tag(
+                        rs.getLong("tag_id"),
+                        rs.getString("tag_name")
+                );
+                result.getTags().add(tag);
+            }
+            if (rs.getLong("comment_id") != 0) {
+                Comment comment = new Comment(
+                        rs.getLong("comment_id"),
+                        rs.getLong("id"),
+                        rs.getString("comment_description")
+                );
+                result.getComments().add(comment);
+            }
+        } while (rs.next());
 
-    public static Post mapToPost(PostRequest request) throws IOException {
-        byte[] bytes = request.getImage().getBytes();
-        String imageBase64 = Base64.getEncoder().encodeToString(bytes);
-
-        Optional.ofNullable(request.getTags()).orElse("");
-
-        Set<Tag> tags = Arrays.stream(Optional.ofNullable(request.getTags()).orElse("").split(","))
-                .toList().stream()
-                .map(tag -> new Tag(0L, tag.trim()))
-                .collect(Collectors.toSet());
-
-        return new Post(
-                0L,
-                request.getTitle(),
-                imageBase64,
-                request.getContent(),
-                0,
-                tags,
-                Set.of()
-        );
+        return result;
     }
 }

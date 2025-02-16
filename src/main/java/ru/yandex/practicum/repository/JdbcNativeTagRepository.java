@@ -2,6 +2,7 @@ package ru.yandex.practicum.repository;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.mapper.TagMapper;
 import ru.yandex.practicum.model.Tag;
 
 import java.util.List;

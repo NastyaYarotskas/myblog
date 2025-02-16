@@ -2,7 +2,6 @@ package ru.yandex.practicum.it;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import ru.yandex.practicum.configuration.DataSourceConfiguration;
@@ -14,49 +13,111 @@ import ru.yandex.practicum.repository.PostRepository;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringJUnitConfig(classes = {DataSourceConfiguration.class, JdbcNativePostRepository.class})
 @TestPropertySource(locations = "classpath:test-application.properties")
 public class JdbcNativePostRepositoryTest {
 
     @Autowired
-    private NamedParameterJdbcTemplate namedJdbcTemplate;
-
-    @Autowired
     private PostRepository postRepository;
 
     @Test
-    void findById_shouldAddUserToDatabase() {
+    void findById_postIsPresent_shouldAddUserToDatabase() {
         Post post = postRepository.findById(1L);
 
         assertNotNull(post);
+        assertEquals(1L, post.getId());
     }
 
     @Test
-    void findAll_shouldAddUserToDatabase() {
+    void findAll_postsArePresent_shouldAddUserToDatabase() {
         Page<Post> posts = postRepository.findAll(0, 5);
 
         assertNotNull(posts);
+        assertEquals(5, posts.getCollection().size());
     }
 
     @Test
-    void filterByTags_shouldReturnAllPostWithRequiredTags() {
+    void filterByTags_postWithTagIsPresent_shouldReturnAllPostWithRequiredTags() {
         Page<Post> posts = postRepository.filterByTags(0, 2, 13L);
 
         assertNotNull(posts);
         assertEquals(1, posts.getCollection().size());
         assertEquals(1, posts.getTotalPages(1));
+        assertEquals(5, posts.getCollection().getFirst().getId());
     }
 
     @Test
-    void save_shouldReturnAllPostWithRequiredTags() {
+    void save_paramsArePresent_shouldReturnAllPostWithRequiredTags() {
         postRepository.save(new Post(1L, "test", "test",
                 "test", 1, Set.of(new Tag(1L, "tag")), Set.of()));
 
         Page<Post> posts = postRepository.findAll(0, 1);
 
         assertNotNull(posts);
+        assertEquals("test", posts.getCollection().getFirst().getTitle());
+    }
+
+    @Test
+    void update_paramsArePresent_shouldReturnAllPostWithRequiredTags() {
+        postRepository.save(new Post(1L, "test", "test",
+                "test", 1, Set.of(new Tag(1L, "tag")), Set.of()));
+
+        Page<Post> posts = postRepository.findAll(0, 1);
+
+        assertNotNull(posts);
+        assertEquals("test", posts.getCollection().getFirst().getTitle());
+
+        Post postToUpdate = posts.getCollection().getFirst();
+        postToUpdate.setTitle("updated");
+
+        postRepository.update(postToUpdate);
+
+        posts = postRepository.findAll(0, 1);
+
+        assertNotNull(posts);
+        assertEquals("updated", posts.getCollection().getFirst().getTitle());
+    }
+
+    @Test
+    void delete_postIsPresent_shouldReturnAllPostWithRequiredTags() {
+        postRepository.save(new Post(1L, "test to delete", "test",
+                "test", 1, Set.of(new Tag(1L, "tag")), Set.of()));
+
+        Page<Post> posts = postRepository.findAll(0, 1);
+
+        assertNotNull(posts);
+        assertEquals("test to delete", posts.getCollection().getFirst().getTitle());
+
+        Post postToDelete = posts.getCollection().getFirst();
+
+        postRepository.deleteById(postToDelete.getId());
+
+        posts = postRepository.findAll(0, 1);
+
+        assertNotNull(posts);
+        assertNotEquals("test to delete", posts.getCollection().getFirst().getTitle());
+    }
+
+    @Test
+    void likePost_postIsPresent_shouldIncrementPostsLikeCount() {
+        postRepository.save(new Post(1L, "test to increment", "test",
+                "test", 1, Set.of(new Tag(1L, "tag")), Set.of()));
+
+        Page<Post> posts = postRepository.findAll(0, 1);
+
+        assertNotNull(posts);
+        assertEquals("test to increment", posts.getCollection().getFirst().getTitle());
+
+        Post postToLike = posts.getCollection().getFirst();
+
+        postRepository.likePost(postToLike.getId());
+
+        posts = postRepository.findAll(0, 1);
+
+        assertNotNull(posts);
+        assertEquals("test to increment", posts.getCollection().getFirst().getTitle());
+        assertEquals(1, posts.getCollection().getFirst().getLikeCount());
     }
 }
