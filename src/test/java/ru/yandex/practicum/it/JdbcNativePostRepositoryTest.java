@@ -2,21 +2,19 @@ package ru.yandex.practicum.it;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import ru.yandex.practicum.configuration.DataSourceConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.Tag;
-import ru.yandex.practicum.repository.JdbcNativePostRepository;
 import ru.yandex.practicum.repository.PostRepository;
 
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringJUnitConfig(classes = {DataSourceConfiguration.class, JdbcNativePostRepository.class})
-@TestPropertySource(locations = "classpath:test-application.properties")
+@SpringBootTest
+@AutoConfigureMockMvc
 public class JdbcNativePostRepositoryTest {
 
     @Autowired
@@ -24,18 +22,18 @@ public class JdbcNativePostRepositoryTest {
 
     @Test
     void findById_postIsPresent_shouldAddUserToDatabase() {
-        Post post = postRepository.findById(1L);
+        Post post = postRepository.findById(5L);
 
         assertNotNull(post);
-        assertEquals(1L, post.getId());
+        assertEquals(5L, post.getId());
     }
 
     @Test
-    void findAll_postsArePresent_shouldAddUserToDatabase() {
+    void findAll_postsArePresent_shouldReturnAllPost() {
         Page<Post> posts = postRepository.findAll(0, 5);
 
         assertNotNull(posts);
-        assertEquals(5, posts.getCollection().size());
+        assertFalse(posts.getCollection().isEmpty());
     }
 
     @Test

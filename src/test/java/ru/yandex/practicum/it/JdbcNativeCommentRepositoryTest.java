@@ -2,16 +2,13 @@ package ru.yandex.practicum.it;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import ru.yandex.practicum.configuration.DataSourceConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.model.Comment;
 import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.Tag;
 import ru.yandex.practicum.repository.CommentRepository;
-import ru.yandex.practicum.repository.JdbcNativeCommentRepository;
-import ru.yandex.practicum.repository.JdbcNativePostRepository;
 import ru.yandex.practicum.repository.PostRepository;
 
 import java.util.Set;
@@ -19,8 +16,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringJUnitConfig(classes = {DataSourceConfiguration.class, JdbcNativePostRepository.class, JdbcNativeCommentRepository.class})
-@TestPropertySource(locations = "classpath:test-application.properties")
+@SpringBootTest
+@AutoConfigureMockMvc
 public class JdbcNativeCommentRepositoryTest {
 
     @Autowired

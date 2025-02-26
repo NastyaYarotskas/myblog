@@ -19,6 +19,7 @@ public class PostController {
     private final PostService service;
     private final TagService tagService;
 
+    //    @Autowired
     public PostController(PostService service, TagService tagService) {
         this.service = service;
         this.tagService = tagService;

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
@@ -10,6 +11,7 @@ public class PostService {
 
     private final PostRepository postRepository;
 
+    @Autowired
     public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
     }

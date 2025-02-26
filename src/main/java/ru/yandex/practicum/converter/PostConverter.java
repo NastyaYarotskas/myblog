@@ -10,8 +10,13 @@ import java.util.stream.Collectors;
 
 public class PostConverter {
 
-    public static Post mapToPost(PostRequest request) throws IOException {
-        byte[] bytes = request.getImage().getBytes();
+    public static Post mapToPost(PostRequest request) {
+        byte[] bytes = null;
+        try {
+            bytes = request.getImage().getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         String imageBase64 = Base64.getEncoder().encodeToString(bytes);
 
         Optional.ofNullable(request.getTags()).orElse("");

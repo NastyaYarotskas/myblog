@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.model.Tag;
 import ru.yandex.practicum.repository.TagRepository;
@@ -11,6 +12,7 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
+    @Autowired
     public TagService(TagRepository tagRepository) {
         this.tagRepository = tagRepository;
     }
