@@ -6,6 +6,7 @@ import ru.yandex.practicum.mapper.TagMapper;
 import ru.yandex.practicum.model.Tag;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class JdbcNativeTagRepository implements TagRepository {
@@ -25,5 +26,11 @@ public class JdbcNativeTagRepository implements TagRepository {
                         """,
                 new TagMapper()
         );
+    }
+
+    @Override
+    public void deleteAll() {
+        jdbcTemplate.update("delete from tags", Map.of());
+        jdbcTemplate.update("ALTER TABLE tags ALTER COLUMN id RESTART WITH 1", Map.of());
     }
 }

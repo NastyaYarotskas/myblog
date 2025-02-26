@@ -40,4 +40,10 @@ public class JdbcNativeCommentRepository implements CommentRepository {
                 Map.of("commentId", commentId,
                         "postId", postId));
     }
+
+    @Override
+    public void deleteAll() {
+        jdbcTemplate.update("delete from comments", Map.of());
+        jdbcTemplate.update("ALTER TABLE comments ALTER COLUMN id RESTART WITH 1", Map.of());
+    }
 }
