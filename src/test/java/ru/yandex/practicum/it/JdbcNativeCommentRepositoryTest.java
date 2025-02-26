@@ -1,5 +1,6 @@
 package ru.yandex.practicum.it;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.Tag;
 import ru.yandex.practicum.repository.CommentRepository;
 import ru.yandex.practicum.repository.PostRepository;
+import ru.yandex.practicum.repository.TagRepository;
 
 import java.util.Set;
 
@@ -21,10 +23,20 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class JdbcNativeCommentRepositoryTest {
 
     @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
     private CommentRepository commentRepository;
 
     @Autowired
-    private PostRepository postRepository;
+    private TagRepository tagRepository;
+
+    @BeforeEach
+    void cleanDatabase() throws Exception {
+        tagRepository.deleteAll();
+        commentRepository.deleteAll();
+        postRepository.deleteAll();
+    }
 
     @Test
     void save_postIsPresent_shouldSaveCommentToDatabase() {

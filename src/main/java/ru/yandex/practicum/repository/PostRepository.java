@@ -17,4 +17,6 @@ public interface PostRepository {
     void deleteById(Long id);
 
     void likePost(Long id);
+
+    void deleteAll();
 }

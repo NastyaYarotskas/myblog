@@ -9,4 +9,6 @@ public interface CommentRepository {
     void update(Comment comment);
 
     void deleteById(Long postId, Long commentId);
+
+    void deleteAll();
 }

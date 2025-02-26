@@ -232,4 +232,10 @@ public class JdbcNativePostRepository implements PostRepository {
                 Map.of("id", id)
         );
     }
+
+    @Override
+    public void deleteAll() {
+        jdbcTemplate.update("delete from posts", Map.of());
+        jdbcTemplate.update("ALTER TABLE posts ALTER COLUMN id RESTART WITH 1", Map.of());
+    }
 }

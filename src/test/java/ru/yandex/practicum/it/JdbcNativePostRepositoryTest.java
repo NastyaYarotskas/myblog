@@ -1,5 +1,6 @@
 package ru.yandex.practicum.it;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,7 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.model.Page;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.Tag;
+import ru.yandex.practicum.repository.CommentRepository;
 import ru.yandex.practicum.repository.PostRepository;
+import ru.yandex.practicum.repository.TagRepository;
 
 import java.util.Set;
 
@@ -20,16 +23,35 @@ public class JdbcNativePostRepositoryTest {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
+
+    @BeforeEach
+    void cleanDatabase() throws Exception {
+        tagRepository.deleteAll();
+        commentRepository.deleteAll();
+        postRepository.deleteAll();
+    }
+
     @Test
     void findById_postIsPresent_shouldAddUserToDatabase() {
-        Post post = postRepository.findById(5L);
+        postRepository.save(new Post(1L, "test", "test",
+                "test", 1, Set.of(new Tag(1L, "tag")), Set.of()));
+
+        Post post = postRepository.findById(1L);
 
         assertNotNull(post);
-        assertEquals(5L, post.getId());
+        assertEquals(1L, post.getId());
     }
 
     @Test
     void findAll_postsArePresent_shouldReturnAllPost() {
+        postRepository.save(new Post(1L, "test", "test",
+                "test", 1, Set.of(new Tag(1L, "tag")), Set.of()));
+
         Page<Post> posts = postRepository.findAll(0, 5);
 
         assertNotNull(posts);
@@ -38,12 +60,15 @@ public class JdbcNativePostRepositoryTest {
 
     @Test
     void filterByTags_postWithTagIsPresent_shouldReturnAllPostWithRequiredTags() {
-        Page<Post> posts = postRepository.filterByTags(0, 2, 13L);
+        postRepository.save(new Post(1L, "test", "test",
+                "test", 1, Set.of(new Tag(1L, "tag")), Set.of()));
+
+        Page<Post> posts = postRepository.filterByTags(0, 2, 1L);
 
         assertNotNull(posts);
         assertEquals(1, posts.getCollection().size());
         assertEquals(1, posts.getTotalPages(1));
-        assertEquals(5, posts.getCollection().getFirst().getId());
+        assertEquals(1, posts.getCollection().getFirst().getId());
     }
 
     @Test
@@ -95,7 +120,7 @@ public class JdbcNativePostRepositoryTest {
         posts = postRepository.findAll(0, 1);
 
         assertNotNull(posts);
-        assertNotEquals("test to delete", posts.getCollection().getFirst().getTitle());
+        assertTrue(posts.getCollection().isEmpty());
     }
 
     @Test
